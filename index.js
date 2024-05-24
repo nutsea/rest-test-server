@@ -11,12 +11,21 @@ const mailService = require('./services/mailService.js')
 
 const PORT = process.env.PORT || 5000
 
+// for linux
+// const options = {
+//     key: fs.readFileSync('/etc/letsencrypt/live/server.hockeystickstop.com/privkey.pem'),
+//     cert: fs.readFileSync('/etc/letsencrypt/live/server.hockeystickstop.com/cert.pem')
+// }
+
 const app = express()
 app.use(cors())
 app.use(express.json())
 app.use(fileUpload({}))
 app.use(express.static('static'));
 app.use('/api', router)
+
+// for linux
+// const server = https.createServer(options, app)
 
 const server = http.createServer(app)
 
@@ -37,7 +46,13 @@ const start = async () => {
     try {
         await sequelize.authenticate()
         await sequelize.sync()
+        
+        // not for linux
         server.listen(PORT, () => console.log(`Server is listening on port ${PORT}`))
+
+        // for linux
+        // server.listen(PORT, () => console.log(`Server started on port ${PORT}`))
+
         io.on('connection', (socket) => {
             console.log('Подключено')
             let code
